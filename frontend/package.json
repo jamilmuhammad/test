@@ -9,16 +9,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^7.0.1",
     "axios": "^1.4.0",
     "chart.js": "^4.3.0",
-    "react-chartjs-2": "^5.2.0",
-    "clsx": "^2.1.1",
-    "tailwind-merge": "^2.5.2",
     "class-variance-authority": "^0.7.0",
-    "lucide-react": "^0.468.0"
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.6.0",
+    "react-router-dom": "^7.0.1",
+    "tailwind-merge": "^2.5.2"
   },
   "devDependencies": {
     "@types/chart.js": "^2.9.34",
