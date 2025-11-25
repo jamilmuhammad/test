@@ -10,10 +10,9 @@ type UserProfile = {
 }
 
 type AuthToken = {
-  access_token: string
-  token_type: string
-  expires_in: number
-  user_profile: UserProfile
+  accessToken: string
+  refresh_token: string
+  user: UserProfile
 }
 
 type AuthContextType = {
@@ -31,6 +30,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 const TOKEN_KEY = 'insignia.token'
 const USER_KEY = 'insignia.user'
+const REFRESH_KEY = 'insignia.refresh'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Read from localStorage synchronously to avoid initial redirect flicker
@@ -48,10 +48,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loading = false
 
   const handleAuthSuccess = (data: AuthToken) => {
-    setToken(data.access_token)
-    setUser(data.user_profile)
-    localStorage.setItem(TOKEN_KEY, data.access_token)
-    localStorage.setItem(USER_KEY, JSON.stringify(data.user_profile))
+    setToken((data as any).accessToken || (data as any).access_token)
+    setUser((data as any).user || (data as any).user_profile || null)
+    localStorage.setItem(TOKEN_KEY, (data as any).accessToken || (data as any).access_token)
+    localStorage.setItem(USER_KEY, JSON.stringify((data as any).user || (data as any).user_profile || {}))
+    // store refresh token if provided
+    const refresh = (data as any).refreshToken || (data as any).refresh_token
+    if (refresh) localStorage.setItem(REFRESH_KEY, refresh)
   }
 
   // Username/password login for admin dashboard
@@ -67,21 +70,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(payload.message || 'Invalid credentials')
       }
 
-      const tokenFromBackend = payload?.accessToken || payload?.access_token
+      const tokenFromBackend = payload?.accessToken || payload?.accessToken
       if (!tokenFromBackend) throw new Error('Missing token from login response')
-      setToken(tokenFromBackend)
-      localStorage.setItem(TOKEN_KEY, tokenFromBackend)
+      // setToken(tokenFromBackend)
+      // localStorage.setItem(TOKEN_KEY, tokenFromBackend)
 
       // fetch profile
       try {
         const me = await api.get<any>('/auth/me', tokenFromBackend)
+        const payloadUser = (me && (me as any).data) ? (me as any).data : (me as any)
         setUser(me)
-        localStorage.setItem(USER_KEY, JSON.stringify(me))
+        handleAuthSuccess({ ...payload, user: payloadUser })
         return me
       } catch (err) {
         // profile fetch failed — clear user but keep token
         setUser(null)
-        localStorage.removeItem(USER_KEY)
+        
+        logout()
         return null
       }
     } catch (err) {
@@ -104,6 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(USER_KEY)
+    localStorage.removeItem(REFRESH_KEY)
   }
 
   const value = useMemo(() => ({
@@ -117,8 +123,65 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
   }), [token, user])
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  // keep in-memory token in sync when api refreshes it and dispatches an event
+  const [sessionExpiredVisible, setSessionExpiredVisible] = React.useState(false)
+
+  React.useEffect(() => {
+    const handler = (e: any) => {
+      const t = e?.detail?.token
+      const r = e?.detail?.refresh
+      if (t) {
+        setToken(t)
+        localStorage.setItem(TOKEN_KEY, t)
+      }
+      if (r) {
+        localStorage.setItem(REFRESH_KEY, r)
+      }
+    }
+    window.addEventListener('insignia:token-refreshed', handler as EventListener)
+
+    let timeoutHandle: number | null = null
+    const failHandler = () => {
+      // show a small session-expired toast/modal and then logout after a short delay
+      setSessionExpiredVisible(true)
+      // auto-logout after 3.5s
+      timeoutHandle = window.setTimeout(() => {
+        logout()
+        try { window.location.href = '/' } catch (e) {}
+      }, 3500)
+    }
+    window.addEventListener('insignia:refresh-failed', failHandler as EventListener)
+    return () => {
+      window.removeEventListener('insignia:token-refreshed', handler as EventListener)
+      window.removeEventListener('insignia:refresh-failed', failHandler as EventListener)
+      if (timeoutHandle) window.clearTimeout(timeoutHandle)
+    }
+  }, [])
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      {sessionExpiredVisible && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <div className="bg-yellow-50 border border-yellow-300 text-yellow-900 p-3 rounded shadow flex items-center gap-3">
+            <div className="text-sm">Your session expired. Redirecting to login…</div>
+            <button
+              className="ml-2 px-3 py-1 bg-yellow-600 text-white rounded text-sm"
+              onClick={() => {
+                setSessionExpiredVisible(false)
+                logout()
+                try { window.location.href = '/' } catch (e) {}
+              }}
+            >
+              Sign in now
+            </button>
+          </div>
+        </div>
+      )}
+    </AuthContext.Provider>
+  )
 }
+
 
 export function useAuth() {
   const ctx = useContext(AuthContext)
