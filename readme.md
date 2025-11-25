@@ -107,10 +107,9 @@ Auth flows
 
 Pages and routes
 
-- `/` — login page (username/password + Google). After login, users are redirected to `/chat` and admins to `/admin/transactions`.
+- `/` — login page (username/password). After login, users are redirected to `/detail` and admins to `/admin/transactions`.
 - `/admin` — admin login (alternate route)
-- `/auth/callback` — OAuth callback handler
-- `/chat` — user detail / chat page (protected)
+- `/detail` — user detail / chat page (protected)
 - `/admin/transactions` — admin transactions dashboard (role-protected)
 
 Transactions dashboard
@@ -128,23 +127,28 @@ Transactions dashboard
 
 ## Demo images (frontend)
 
-The frontend includes small demo avatar/logo images used by the UI for quick local demos. You can find them in the repository under `frontend/assets/demos`.
+- Users (login, detail, main)
+    - Directory: [frontend/assets/demos/users/](frontend/assets/demos/users/)
+    - Login Page: [login_user.png](frontend/assets/demos/users/login_user.png)  
+        ![User login demo](frontend/assets/demos/users/login_user.png)
+    - Detail Page: [detail_user.png](frontend/assets/demos/users/detail_user.png)  
+        ![User detail demo](frontend/assets/demos/users/detail_user.png)
+    - Main Page: [main_user.png](frontend/assets/demos/users/main_user.png)  
+        ![User main demo](frontend/assets/demos/users/main_user.png)
 
-- Users (examples for the user-facing UI — login, detail, main):
-  - Directory: https://github.com/jamilmuhammad/test (see `/frontend/assets/demos/users`)
-  - Login Page: `/frontend/assets/demos/users/login_user.png`
-  - Detail Page: `/frontend/assets/demos/users/detail_user.png`
-  - Main Page: `/frontend/assets/demos/users/main_user.png`
+- Admins (login, transactions, main)
+    - Directory: [frontend/assets/demos/admins/](frontend/assets/demos/admins/)
+    - Login Page: [login_admin.png](frontend/assets/demos/admins/login_admin.png)  
+        ![Admin login demo](frontend/assets/demos/admins/login_admin.png)
+    - Transactions Page: [transaction_admin.png](frontend/assets/demos/admins/transaction_admin.png)  
+        ![Admin transactions demo](frontend/assets/demos/admins/transaction_admin.png)
+    - Main Page: [main_admin.png](frontend/assets/demos/admins/main_admin.png)  
+        ![Admin main demo](frontend/assets/demos/admins/main_admin.png)
 
-- Admins (examples for admin UI — login, admin transaction, main):
-  - Directory: https://github.com/jamilmuhammad/test (see `/frontend/assets/demos/admins`)
-  - Login Page: `/frontend/assets/demos/users/login_admin.png`
-  - Transactins Page: `/frontend/assets/demos/users/transaction_admin.png`
-  - Main Page: `/frontend/assets/demos/users/main_admin.png`
-
-- Icons (example for icon image):
-    - Icon asset: `/assets/icons/image.png`
-    - Use in components (Vite serves from `/assets/...`): `<img src="/assets/icons/image.png" alt="App icon" />`
+- Icons
+    - File (repo): [frontend/public/assets/icons/image.png](frontend/public/assets/icons/image.png)
+    - Runtime URL (Vite): /assets/icons/image.png
+    - Use in components: `<img src="/assets/icons/image.png" alt="App icon" />`
 
 Testing
 
