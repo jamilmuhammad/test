@@ -1,0 +1,64 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: insignia-postgres-dev
+    env_file:
+      - ./db/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./docker/db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d insignia_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      backend-net:
+        aliases:
+          - postgres
+
+  # backend:
+  #   image: ghcr.io/your-org/insignia-backend:${BACKEND_TAG}
+  #   environment:
+  #     DATABASE_URL: postgres://insignia:${POSTGRES_PASSWORD}@db:5432/insignia
+  #     NODE_ENV: production
+  #   depends_on:
+  #     - db
+  #   restart: unless-stopped
+  #   networks:
+  #     - backend-net
+
+  # frontend:
+  #   image: ghcr.io/your-org/insignia-frontend:${FRONTEND_TAG}
+  #   environment:
+  #     NODE_ENV: production
+  #   restart: unless-stopped
+  #   networks:
+  #     - frontend-net
+  #     - backend-net
+
+  # nginx:
+  #   image: nginx:1.27-alpine
+  #   volumes:
+  #     - ./infra/nginx/conf.d:/etc/nginx/conf.d:ro
+  #     - ./infra/certs:/etc/ssl/certs:ro
+  #   depends_on:
+  #     - frontend
+  #     - backend
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   restart: unless-stopped
+  #   networks:
+  #     - frontend-net
+  #     - backend-net
+
+volumes:
+  db_data:
+
+networks:
+  backend-net:
+    driver: bridge

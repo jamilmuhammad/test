@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String        @id @default(uuid())
+  username             String        @unique
+  password          String?
+  role              String        @default("user")
+  permissions       String[]      @default([])
+  refreshToken      String?
+  name              String?
+  isActive          Boolean       @default(true)
+  deletedAt         DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  wallet            Wallet?
+  sentTransfers     Transaction[] @relation("sender")
+  receivedTransfers Transaction[] @relation("receiver")
+
+  @@index([username])
+}
+
+model Wallet {
+  id          String        @id @default(uuid())
+  userId      String        @unique
+  balance     Decimal       @default(0) @db.Decimal(20, 8)
+  currency    String        @default("USD")
+  isLocked    Boolean       @default(false)
+  deletedAt   DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  outgoingTx  Transaction[] @relation("fromWallet")
+  incomingTx  Transaction[] @relation("toWallet")
+
+  @@index([userId])
+}
+
+model Transaction {
+  id             String            @id @default(uuid())
+  fromUserId     String?
+  toUserId       String?
+  fromWalletId   String?
+  toWalletId     String?
+  amount         Decimal           @db.Decimal(20, 8)
+  fee            Decimal           @default(0) @db.Decimal(20, 8)
+  type           TransactionType
+  status         TransactionStatus @default(PENDING)
+  description    String?
+  metadata       Json?
+  idempotencyKey String?           @unique
+  deletedAt      DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  fromUser   User?   @relation("sender", fields: [fromUserId], references: [id], onDelete: SetNull)
+  toUser     User?   @relation("receiver", fields: [toUserId], references: [id], onDelete: SetNull)
+  fromWallet Wallet? @relation("fromWallet", fields: [fromWalletId], references: [id], onDelete: SetNull)
+  toWallet   Wallet? @relation("toWallet", fields: [toWalletId], references: [id], onDelete: SetNull)
+
+  @@index([fromUserId, createdAt])
+  @@index([toUserId, createdAt])
+  @@index([fromWalletId])
+  @@index([toWalletId])
+  @@index([idempotencyKey])
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+  FEE
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
