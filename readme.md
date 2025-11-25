@@ -126,6 +126,26 @@ Transactions dashboard
 - The frontend `src/shared/api.ts` helper attaches Content-Type and Authorization headers. It also uses `credentials: 'include'` for cookie-based flows if needed.
 - The frontend contains a small RoleProtectedRoute helper to deny access to admin routes for non-admin users.
 
+## Demo images (frontend)
+
+The frontend includes small demo avatar/logo images used by the UI for quick local demos. You can find them in the repository under `frontend/assets/demos`.
+
+- Users (examples for the user-facing UI — login, detail, main):
+  - Directory: https://github.com/jamilmuhammad/test (see `/frontend/assets/demos/users`)
+  - Login Page: `/frontend/assets/demos/users/login_user.png`
+  - Detail Page: `/frontend/assets/demos/users/detail_user.png`
+  - Main Page: `/frontend/assets/demos/users/main_user.png`
+
+- Admins (examples for admin UI — login, admin transaction, main):
+  - Directory: https://github.com/jamilmuhammad/test (see `/frontend/assets/demos/admins`)
+  - Login Page: `/frontend/assets/demos/users/login_admin.png`
+  - Transactins Page: `/frontend/assets/demos/users/transaction_admin.png`
+  - Main Page: `/frontend/assets/demos/users/main_admin.png`
+
+- Icons (example for icon image):
+    - Icon asset: `/assets/icons/image.png`
+    - Use in components (Vite serves from `/assets/...`): `<img src="/assets/icons/image.png" alt="App icon" />`
+
 Testing
 
 - Backend: `pnpm --filter backend test` (or `cd backend && pnpm test`)
