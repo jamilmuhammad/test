@@ -107,4 +107,43 @@ export const api = {
   },
 }
 
+// Wallet helpers
+export const wallet = {
+  deposit: async <T>(amount: number, opts?: { description?: string; idempotencyKey?: string }, token?: string) => {
+    const body: any = { amount }
+    if (opts?.description) body.description = opts.description
+    if (opts?.idempotencyKey) body.idempotencyKey = opts.idempotencyKey
+    const headers = token ? { Authorization: `Bearer ${token}` } : undefined
+    const res = await instance.post(`/wallets/deposit`, body, { headers })
+    return res.data as T
+  },
+  transfer: async <T>(toUserId: string, amount: number, opts?: { description?: string; idempotencyKey?: string }, token?: string) => {
+    const body: any = { toUserId, amount }
+    if (opts?.description) body.description = opts.description
+    if (opts?.idempotencyKey) body.idempotencyKey = opts.idempotencyKey
+    const headers = token ? { Authorization: `Bearer ${token}` } : undefined
+    const res = await instance.post(`/wallets/transfer`, body, { headers })
+    return res.data as T
+  },
+}
+
+// Admin/user listing helpers
+export const admin = {
+  listUsersForSelection: async <T>(token?: string) => {
+    const headers = token ? { Authorization: `Bearer ${token}` } : undefined
+    const res = await instance.get(`/transactions/users`, { headers })
+    return res.data as T
+  },
+}
+
+// Transactions helpers
+export const transactions = {
+  // fetch top N transactions for a given userId (or 'all')
+  getUserTop: async <T>(userId: string, n = 200, token?: string) => {
+    const headers = token ? { Authorization: `Bearer ${token}` } : undefined
+    const res = await instance.get(`/transactions/user/${encodeURIComponent(userId)}/top/${n}`, { headers })
+    return res.data as T
+  },
+}
+
 // (keep the axios-backed api above)
