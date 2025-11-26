@@ -14,8 +14,7 @@ export class TransactionsController {
   constructor(private svc: TransactionsService) {}
 
   @Get('user/:userId/top/:n')
-  @UseGuards(JwtAuthGuard, RequiredUserGuard, RoleTypeGuard)
-  @RoleTypes(Role.SuperAdmin)
+  @UseGuards(JwtAuthGuard, RequiredUserGuard)
   async topForUser(@Param('userId') userId: string, @Param('n', ParseIntPipe) n: number) {
     return this.svc.topTransactionsForUser(userId, n);
   }
@@ -28,8 +27,7 @@ export class TransactionsController {
   }
 
   @Get('users')
-  @UseGuards(JwtAuthGuard, RequiredUserGuard, RoleTypeGuard)
-  @RoleTypes(Role.SuperAdmin)
+  @UseGuards(JwtAuthGuard, RequiredUserGuard)
   async listUsers() {
     return this.svc.listUsersForSelection();
   }
