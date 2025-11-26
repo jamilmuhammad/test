@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from '../modules/auth/AuthContext'
 import { api } from '../shared/api'
 import { Button } from '../widgets/ui/button'
+import TransferForm from './TransferForm'
+import TransactionsList from './TransactionsList'
 
 
 export function DetailPage() {
@@ -66,14 +68,18 @@ export function DetailPage() {
     <div className="min-h-screen flex flex-col">
       {header}
       {userDetail ? (
-        <div className="p-6">
-          <h2 className="text-xl font-semibold mb-4">{userDetail?.name || user?.name || 'Guest'}</h2>
-          <h4 className="text-muted-foreground">{userDetail?.username || (user as any)?.username}</h4>
-          <div className="text-xs text-muted-foreground">Balance: {balance !== null ? String(balance) : '—'}</div>
-          <pre className="bg-gray-100 p-4 rounded overflow-x-auto">
-            {JSON.stringify(userDetail, null, 2)}
-          </pre>
-        </div>
+        <>  
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-4">{userDetail?.name || user?.name || 'Guest'}</h2>
+            <h4 className="text-muted-foreground">{userDetail?.username || (user as any)?.username}</h4>
+            <div className="text-xs text-muted-foreground">Balance: {balance !== null ? String(balance) : '—'}</div>
+            <pre className="bg-gray-100 p-4 rounded overflow-x-auto">
+              {JSON.stringify(userDetail, null, 2)}
+            </pre>
+          </div>
+          <TransferForm />
+          <TransactionsList />
+        </>
       ) : null}
     </div>
   )
