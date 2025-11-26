@@ -142,6 +142,8 @@ Transactions dashboard
         ![Admin login demo](frontend/assets/demos/admins/login_admin.png)
     - Transactions Page: [transaction_admin.png](frontend/assets/demos/admins/transaction_admin.png)  
         ![Admin transactions demo](frontend/assets/demos/admins/transaction_admin.png)
+    - Detail User Admin Page: [detail_admin.png](frontend/assets/demos/admins/detail_admin.png)  
+        ![Admin main demo](frontend/assets/demos/admins/main_admin.png)
     - Main Page: [main_admin.png](frontend/assets/demos/admins/main_admin.png)  
         ![Admin main demo](frontend/assets/demos/admins/main_admin.png)
 
