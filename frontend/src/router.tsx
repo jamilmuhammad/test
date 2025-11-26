@@ -5,6 +5,8 @@ import { TransactionsPage } from './views/TransactionsPage'
 import { useAuth } from './modules/auth/AuthContext'
 import { CallbackPage } from './views/CallbackPage'
 import { DetailPage } from './views/DetailPage'
+import { useEffect } from 'react'
+import { toast, Toaster } from 'react-hot-toast'
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { isAuthenticated, loading } = useAuth()
@@ -18,11 +20,19 @@ function RoleProtectedRoute({ children, requiredRole }: { children: JSX.Element;
   const { isAuthenticated, loading, user } = useAuth()
   if (loading) return null
   if (!isAuthenticated) return <Navigate to="/admin" replace />
+
   const role = (user as any)?.role || (user as any)?.roleType || null
-  if (requiredRole && role && String(role).toLowerCase().includes(String(requiredRole).toLowerCase())) {
-    return children
-  }
-  // if user is authenticated but does not have required role, send them to user area
+  const hasRequiredRole =
+    !requiredRole ||
+    (role && String(role).toLowerCase().includes(String(requiredRole).toLowerCase()))
+
+  useEffect(() => {
+    if (!hasRequiredRole) {
+      toast.error('You do not have permission to access that page.')
+    }
+  }, [hasRequiredRole])
+
+  if (hasRequiredRole) return children
   return <Navigate to="/admin" replace />
 }
 
@@ -37,8 +47,11 @@ export const router = createBrowserRouter([
     )
   },
   { path: '/admin/transactions', element: (
-      <RoleProtectedRoute requiredRole={'SuperAdmin'}>
-        <TransactionsPage />
+      <RoleProtectedRoute requiredRole={'super-admin'}>
+        <>
+          <TransactionsPage />
+          <Toaster />
+        </>
       </RoleProtectedRoute>
     )
   },

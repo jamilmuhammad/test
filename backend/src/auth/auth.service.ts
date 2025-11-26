@@ -28,15 +28,20 @@ export class AuthService {
 
   async login(user: any) {
     const payload = { sub: user.id, username: user.username, role: user.role, permissions: user.permissions };
-    // cast payload and expiresIn to any to avoid type incompatibilities between jwt types
     const accessToken = this.jwtService.sign(payload as any, { expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN || '15m') as any });
     const refreshToken = this.jwtService.sign(payload as any, { expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN || '7d') as any });
 
-    // store hashed refresh token
     const hashed = await hash(refreshToken, 10);
     await this.usersService.setRefreshToken(user.id, hashed as any);
 
-    return { accessToken, refreshToken };
+    const freshUser = await this.usersService.findById(user.id);
+    let safeUser: any = null;
+    if (freshUser) {
+      const { password, refreshToken: rt, ...rest } = freshUser as any;
+      safeUser = rest;
+    }
+
+    return { accessToken, refreshToken, user: safeUser };
   }
 
   async logout(userId: string) {
